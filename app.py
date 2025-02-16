@@ -21,6 +21,9 @@ def index():
 def favicon():
     return send_from_directory("static", "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
+result = subprocess.run(["yt-dlp", "--version"], capture_output=True, text=True)
+print("yt-dlp version:", result.stdout)
+
 
 # Updated quality options (VP9 for 4K & 1440p, AVC for others)
 QUALITY_OPTIONS = {
