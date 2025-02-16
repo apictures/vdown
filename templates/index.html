@@ -133,7 +133,7 @@
                 return;
             }
 
-            fetch("http://127.0.0.1:5000/download", {  // Change to local network IP
+            fetch("http://127.0.0.1:10000/download", {  // Change to local network IP
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url: url, quality: quality })
