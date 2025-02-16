@@ -10,7 +10,7 @@ import subprocess
 app = Flask(__name__)
 CORS(app)
 DOWNLOADS_DIR = "static/downloads"
-DOWNLOAD_FOLDER = "downloads"
+DOWNLOAD_FOLDER = "static/downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 @app.route("/")
