@@ -75,7 +75,7 @@ def download_video():
             if converted_file:
                 filename = converted_file
 
-        return jsonify({"success": True, "download_link": f"http://127.0.0.1:5000/downloaded/{os.path.basename(filename)}" })
+        return jsonify({"success": True, "download_link": f"http://127.0.0.1:10000/downloaded/{os.path.basename(filename)}" })
 
 
     except Exception as e:
@@ -90,4 +90,5 @@ def serve_file(filename):
     return jsonify({"success": False, "error": "File not found"}), 404
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))  # Get port from Render
     app.run(debug=True, host="0.0.0.0", port=5000)
