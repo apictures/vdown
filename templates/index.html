@@ -133,20 +133,27 @@
                 return;
             }
 
-            fetch("http://127.0.0.1:10000/download", {  // Change to local network IP
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: url, quality: quality })
-            })
+            document.querySelector(".progress-container1").style.display = "block"; // Show progress bar
+    document.getElementById("progressBar").style.width = "10%"; // Start progress
+
+            fetch(window.location.origin + "/download", { 
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: url, quality: quality })
+})
+
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    document.getElementById("progressBar").style.width = "100%"; // Complete progress
                     window.location.href = data.download_link;  // Fixed download link
                 } else {
                     alert("Download failed: " + data.error);
+                    document.querySelector(".progress-container1").style.display = "none"; // Hide on failur
                 }
             })
             .catch(error => console.error("Error:", error));
+            document.querySelector(".progress-container1").style.display = "none"; // Hide on error
         }
     </script>
 
