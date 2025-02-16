@@ -78,7 +78,11 @@ def download_video():
             if converted_file:
                 filename = converted_file
 
-        return jsonify({"success": True, "download_link": f"http://127.0.0.1:10000/downloaded/{os.path.basename(filename)}" })
+        return jsonify({
+    "success": True,
+    "download_link": f"{request.host_url}downloaded/{os.path.basename(filename)}"
+})
+
 
 
     except Exception as e:
