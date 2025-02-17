@@ -49,12 +49,17 @@ def convert_to_h264(input_file, output_file):
     except Exception as e:
         print("FFmpeg Error:", e)
         return None
-
-@app.route("/download", methods=["GET"])
+        
+@app.route("/download", methods=["POST", "GET"])
 def download_video():
-    url = request.args.get("url")  # Get the file URL from the client  
+    if request.method == "POST":
+        data = request.get_json()
+        url = data.get("url")
+    else:  # If it's a GET request
+        url = request.args.get("url")
+    
     if not url:
-        return "No URL provided", 400  
+        return jsonify({"success": False, "error": "No URL provided"}), 400
 
     def generate():
         with requests.get(url, stream=True) as r:
@@ -62,6 +67,7 @@ def download_video():
                 yield chunk  
 
     return Response(generate(), content_type="application/octet-stream")
+
   
     if not url:
         return jsonify({"success": False, "error": "No URL provided"}), 400
