@@ -51,12 +51,6 @@ def convert_to_h264(input_file, output_file):
         return None
 
 @app.route("/download", methods=["GET"])
-import requests  
-from flask import Flask, Response, request  
-
-app = Flask(__name__)  
-
-@app.route("/download", methods=["GET"])
 def download_video():
     url = request.args.get("url")  # Get the file URL from the client  
     if not url:
