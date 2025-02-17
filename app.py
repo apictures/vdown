@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, Response, request, jsonify, send_file
 from flask_cors import CORS
 from flask import Flask, render_template
 from flask import send_from_directory
 import yt_dlp
 import os
 import subprocess
+import requests
 
 
 app = Flask(__name__)
@@ -49,11 +50,18 @@ def convert_to_h264(input_file, output_file):
         print("FFmpeg Error:", e)
         return None
 
-@app.route("/download", methods=["POST"])
+@app.route("/download", methods=["GET"])
 def download_video():
-    data = request.get_json()
-    url = data.get("url")
+    url = request.args.get("url")  # Get the file URL from the client  
+    if not url:
     quality = data.get("quality", "1080p")
+
+    def generate():
+        with requests.get(url, stream=True) as r:
+            for chunk in r.iter_content(chunk_size=8192):
+                yield chunk  
+
+    return Response(generate(), content_type="application/octet-stream")
 
     if not url:
         return jsonify({"success": False, "error": "No URL provided"}), 400
