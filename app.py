@@ -51,10 +51,16 @@ def convert_to_h264(input_file, output_file):
         return None
 
 @app.route("/download", methods=["GET"])
+import requests  
+from flask import Flask, Response, request  
+
+app = Flask(__name__)  
+
+@app.route("/download", methods=["GET"])
 def download_video():
     url = request.args.get("url")  # Get the file URL from the client  
     if not url:
-    quality = data.get("quality", "1080p")
+        return "No URL provided", 400  
 
     def generate():
         with requests.get(url, stream=True) as r:
@@ -62,7 +68,7 @@ def download_video():
                 yield chunk  
 
     return Response(generate(), content_type="application/octet-stream")
-
+  
     if not url:
         return jsonify({"success": False, "error": "No URL provided"}), 400
     if quality not in QUALITY_OPTIONS:
