@@ -152,7 +152,7 @@ def download_video():
 
 
 
-        return jsonify({"success": True, "download_link": f"http://192.168.29.124:10000/downloaded/{os.path.basename(filename)}" })
+        return jsonify({"success": True, "download_link": f"http://127.0.0.1:10000/downloaded/{os.path.basename(filename)}" })
 
 
 
