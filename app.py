@@ -11,7 +11,7 @@ import yt_dlp
 import os
 
 import subprocess
-
+import socket
 
 
 
@@ -152,10 +152,20 @@ def download_video():
 
 
 
-        return jsonify({"success": True, "download_link": f"http://127.0.0.1:10000/downloaded/{os.path.basename(filename)}" })
+    def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))  # Connect to an external server
+        ip = s.getsockname()[0]  # Get local IP
+    except Exception:
+        ip = "127.0.0.1"  # Fallback if error occurs
+    finally:
+        s.close()
+    return ip
 
+       local_ip = get_local_ip()
 
-
+        return jsonify({"success": True, "download_link": f"http://{local_ip}:10000/downloaded/{os.path.basename(filename)}"})
 
 
     except Exception as e:
