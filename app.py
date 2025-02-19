@@ -153,7 +153,7 @@ def download_video():
 
 
 
-return jsonify({"success": True, "download_link": f"http://{local_ip}:10000/downloaded/{os.path.basename(filename)}"})
+return jsonify({"success": True, "download_link": f"http://0.0.0.0:10000/downloaded/{os.path.basename(filename)}"})
 
     except Exception as e:
 
