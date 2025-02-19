@@ -76,7 +76,7 @@ Running the Application
 3. Install Dependencies:
    pip install -r requirements.txt
 4. Run the Application:
-   python main.py
+   python app.py
 
 ---
 
