@@ -154,6 +154,7 @@ def download_video():
 
 
     def get_local_ip():
+    def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -162,12 +163,11 @@ def download_video():
     except Exception as e:
         print(f"Error getting local IP: {e}")
         ip = "127.0.0.1"  # Fallback IP
-    return ip
+    return ip  # <-- This should be properly indented
 
-       local_ip = get_local_ip()
+local_ip = get_local_ip()  # <-- This should not be indented inside a function
 
-        return jsonify({"success": True, "download_link": f"http://{local_ip}:10000/downloaded/{os.path.basename(filename)}"})
-
+return jsonify({"success": True, "download_link": f"http://{local_ip}:10000/downloaded/{os.path.basename(filename)}"})
 
     except Exception as e:
 
