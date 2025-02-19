@@ -11,6 +11,7 @@ import yt_dlp
 import os
 
 import subprocess
+
 import socket
 
 
@@ -153,14 +154,14 @@ def download_video():
 
 
     def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(("8.8.8.8", 80))  # Connect to an external server
-        ip = s.getsockname()[0]  # Get local IP
-    except Exception:
-        ip = "127.0.0.1"  # Fallback if error occurs
-    finally:
-        s.close()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()  # Close the socket after use
+    except Exception as e:
+        print(f"Error getting local IP: {e}")
+        ip = "127.0.0.1"  # Fallback IP
     return ip
 
        local_ip = get_local_ip()
