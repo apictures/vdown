@@ -95,6 +95,17 @@ def convert_to_h264(input_file, output_file):
 
 
 
+def get_local_ip():
+    """Get the local network IP of the machine running Flask."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Connect to Google's DNS (doesn't actually send data)
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"  # Fallback if something goes wrong
+
 @app.route("/download", methods=["POST"])
 def download_video():
     data = request.get_json()
@@ -124,12 +135,14 @@ def download_video():
             if converted_file:
                 filename = converted_file
 
-        # Fix: return statement properly indented inside try block
-        return jsonify({"success": True, "download_link": f"http://0.0.0.0:10000/downloaded/{os.path.basename(filename)}"})
+        # ✅ Get local network IP dynamically
+        local_ip = get_local_ip()
+        download_link = f"http://{local_ip}:10000/downloaded/{os.path.basename(filename)}"
+
+        return jsonify({"success": True, "download_link": download_link})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 
 
