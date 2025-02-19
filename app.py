@@ -96,68 +96,40 @@ def convert_to_h264(input_file, output_file):
 
 
 @app.route("/download", methods=["POST"])
-
 def download_video():
-
     data = request.get_json()
-
     url = data.get("url")
-
     quality = data.get("quality", "1080p")
 
-
-
     if not url:
-
         return jsonify({"success": False, "error": "No URL provided"}), 400
-
     if quality not in QUALITY_OPTIONS:
-
         return jsonify({"success": False, "error": "Invalid quality option"}), 400
 
-
-
     try:
-
         ydl_opts = {
-
             "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
-
             "format": QUALITY_OPTIONS[quality],
-
             "merge_output_format": "mp4",
-
         }
 
-
-
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-
             info_dict = ydl.extract_info(url, download=True)
-
             filename = ydl.prepare_filename(info_dict).replace(".webm", ".mp4").replace(".mkv", ".mp4")
 
-        
-
         # Convert only if it's 4K or 1440p (VP9 format)
-
         if quality in ["4k", "1440p"]:
-
             output_file = filename.replace(".mp4", "_converted.mp4")
-
             converted_file = convert_to_h264(filename, output_file)
-
             if converted_file:
-
                 filename = converted_file
 
-
-
-return jsonify({"success": True, "download_link": f"http://0.0.0.0:10000/downloaded/{os.path.basename(filename)}"})
+        # Fix: return statement properly indented inside try block
+        return jsonify({"success": True, "download_link": f"http://0.0.0.0:10000/downloaded/{os.path.basename(filename)}"})
 
     except Exception as e:
-
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 
 
