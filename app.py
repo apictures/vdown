@@ -152,8 +152,7 @@ def download_video():
                 filename = converted_file
 
 
-
-    def get_local_ip():
+    
     def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
