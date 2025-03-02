@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4K Video Downloader</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+    <style>
+        /* 🔹 General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* 🔹 Main container */
+        .container1 {
+            width: 90%;
+            max-width: 450px;
+            background: linear-gradient(to right, #c5b3ff, #91e8e1);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            font-size: 55px;
+            color: #333;
+        }
+
+        /* 🔹 Input Fields & Select */
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        /* 🔹 Download Button */
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* 🔹 Progress Bar */
+        .progress-container {
+            display: none;
+            width: 100%;
+            background: #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background: #4CAF50;
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* 🔹 Responsive Design */
+        @media (max-width: 480px) {
+            .container1 {
+                padding: 20px;
+            }
+            input, select, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="container1">
+        <h2>VDown</h2>
+        <input type="text" id="videoUrl" placeholder="Enter video URL">
+
+        <label for="quality">Select Quality:</label>
+        <select id="quality">
+            <option value="4k">4K (2160p)</option>
+            <option value="1440p">1440p</option>
+            <option value="1080p" selected>1080p</option>
+            <option value="720p">720p</option>
+            <option value="480p">480p</option>
+            <option value="360p">360p</option>
+        </select>
+
+        <button onclick="downloadVideo()">Download</button>
+
+        <!-- ✅ Progress Bar Container -->
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <p>Download Progress: <span id="progress-text">0%</span></p>
+        </div>
+
+        <p id="status"></p>
+
+        <div id="progress-container" style="width: 100%; background: #e0e0e0;">
+            <div id="progress-bar" style="width: 0%; height: 20px; background: #76c7c0;"></div>
+        </div>
+        <p id="progress-text">0%</p>
+
+        <button id="torToggle">Enable Tor</button>
+        <p id="torStatus">Tor is OFF</p>
+
+       <script> 
+          async function checkTorStatus() {
+            const response = await fetch("/tor-status");
+            const data = await response.json();
+            document.getElementById("torStatus").innerText = "Tor is " + data.status;
+            document.getElementById("torToggle").innerText = (data.status === "ON") ? "Disable Tor" : "Enable Tor";
+          }
+
+          document.getElementById("torToggle").addEventListener("click", async () => {
+            const statusResponse = await fetch("/tor-status");
+            const statusData = await statusResponse.json();
+        
+            const endpoint = statusData.status === "ON" ? "/stop-tor" : "/start-tor";
+            const response = await fetch(endpoint);
+            const data = await response.json();
+        
+            alert(data.message);
+            checkTorStatus();
+          });
+
+          // Check Tor status when the page loads
+          checkTorStatus();
+       </script>
+
+
+    </div>
+</div>
+
+
+<script>
+    function downloadVideo() {
+        const url = document.getElementById("videoUrl").value;
+        const quality = document.getElementById("quality").value;
+
+        if (!url) {
+            alert("Please enter a video URL.");
+            return;
+        }
+
+        const progressBar = document.getElementById("progressBar");
+        const progressText = document.getElementById("progress-text");
+        const progressContainer = document.getElementById("progress-container");
+
+        // Reset progress bar
+        progressContainer.style.display = "block";
+        progressBar.style.width = "0%";
+        progressText.innerText = "0%";
+
+        // Start download request
+        fetch(window.location.origin + "/download", { 
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url, quality: quality })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Start progress updates
+                const evtSource = new EventSource("/progress?" + new Date().getTime());
+
+                evtSource.onmessage = function(event) {
+                    const percent = parseFloat(event.data);
+                    progressBar.style.width = percent + "%";
+                    progressText.innerText = percent.toFixed(1) + "%";
+
+                    if (percent >= 100) {
+                        evtSource.close();
+                        window.location.href = data.download_link; // Auto-download after completion
+                    }
+                };
+
+                evtSource.onerror = function() {
+                    console.error("Progress EventSource Error");
+                    evtSource.close();
+                };
+
+            } else {
+                alert("Download failed: " + data.error);
+                progressContainer.style.display = "none";
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            progressContainer.style.display = "none";
+        });
+    }
+
+    const progressBar = document.getElementById("progress-bar");
+    const progressText = document.getElementById("progress-text");
+
+    const evtSource = new EventSource("/progress");
+
+    evtSource.onmessage = function(event) {
+        const percent = parseFloat(event.data);
+        progressBar.style.width = percent + "%";
+        progressText.innerText = percent.toFixed(1) + "%";
+
+        if (percent >= 100) {
+            evtSource.close();
+            progressText.innerText = "Download Complete!";
+        }
+    };
+
+    evtSource.onerror = function() {
+        console.error("Error receiving progress updates.");
+        evtSource.close();
+    };
+
+</script>
+
+</body>
+</html>
